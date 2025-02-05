@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Cover Manager</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <!-- COPYRIGHT BY A41K-->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,6 +16,7 @@
             margin: 0;
             background-color: #fff;
             padding: 10px;
+            flex-direction: column;
         }
 
         .container {
@@ -161,36 +163,59 @@
             transform: translateX(-100%); /* Slide out of view */
         }
 
+        /* Footer Style */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #000;
+            color: white;
+            font-size: 14px;
+        }
+
         /* Responsive design for mobile devices */
-        @media (max-width: 480px) {
-            .container {
-                width: 100vw;
-                height: 50vh;
-            }
+        @media (max-width: 700px) {
+        .container {
+            width: 100vw;
+            height: 6 0vh;
+        }
 
-            .song-title {
-                font-size: 20px;
-            }
+        .song-title {
+            font-size: 20px;
+        }
 
-            .song-artist {
-                font-size: 14px;
-            }
+        .song-artist {
+            font-size: 14px;
+        }
 
-            .button {
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
+        .button {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+        }
 
-            .heart-icon {
-                width: 45px;
-                height: 45px;
-            }
+        .heart-icon {
+            width: 40px;
+            height: 40px;
+        }
 
-            /* Adjusting the song-info position for better visibility on mobile */
-            .song-info {
-                bottom: 50px; /* Move text lower to be visible */
-            }
+        /* Adjusting the song-info position for better visibility on mobile */
+        .song-info {
+            bottom: 70px; /* Move text lower to be visible */
+        }
+
+        .saved-song-item span {
+            font-size: 14px;
+        }
+
+        
+        .buttons {
+            bottom: 20px; /* Move the buttons 20px down */
+        }
+    }
 
             .saved-song-item span {
                 font-size: 14px;
@@ -219,6 +244,10 @@
     <div class="saved-song" id="savedSong">
         <!-- Saved songs will stack here -->
     </div>
+
+    <footer>
+        This was made by Andrew a.k.a A41K
+    </footer>
 
     <script>
         const cover = document.getElementById('cover');
@@ -262,24 +291,27 @@
         const randomIndex = Math.floor(Math.random() * playlist.length);
         const randomSong = playlist[randomIndex];
 
-        // 1 in 10 songs should have a slight orange glow (guaranteed after 15 clicks)
-        if (clickCounter >= 15 && !isGlowActive) {
-            cover.classList.add('rare');
+        // Trigger the rare glow effect once in every 4 clicks
+        if (clickCounter % 4 === 0 && !isGlowActive) {
+            cover.classList.add('rare'); // Apply glow effect
             isGlowActive = true;
-        } else if (Math.random() < 0.1) { // 1 in 10 chance for glow
-            cover.classList.add('rare');
         } else {
-            cover.classList.remove('rare');
+            cover.classList.remove('rare'); // Remove glow effect
         }
+        
+
 
         cover.src = randomSong.cover;
         songTitle.textContent = randomSong.title;
         songArtist.textContent = randomSong.artist;
 
+
+
         // Hide "Press the heart button" text
         noSongText.style.display = 'none';
         songInfo.style.opacity = 1; // Show song info smoothly
     }
+    
 
         // Add song (slide in)
         addBtn.addEventListener('click', () => {
@@ -297,8 +329,12 @@
                 songTitle.textContent = song.title;
                 songArtist.textContent = song.artist;
                 songInfo.style.opacity = 1; // Show song info smoothly
+
+                // Remove glow effect after "+" is clicked
+                cover.classList.remove('rare');
             }, 600); // Wait for slide-out to finish
         });
+        
 
         // Save song to saved songs section
         saveBtn.addEventListener('click', () => {
