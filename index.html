@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Cover Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #fff;
+            padding: 10px;
+        }
+
+        .container {
+            position: relative;
+            width: 90vw;
+            max-width: 250px;
+            height: 70vh;
+            text-align: center;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .cover {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            left: 0;
+            transform: translateX(100%); /* Initially off-screen */
+            transition: transform 0.5s ease;
+        }
+
+        .cover.rare {
+            box-shadow: 0 0 15px 5px rgba(255, 165, 0, 0.8); /* Orange glow */
+        }
+
+        .song-info {
+            position: absolute;
+            bottom: 90px; /* Positioned above the buttons */
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            text-align: center;
+        }
+
+        .song-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .song-artist {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .button {
+            position: absolute;
+            bottom: 20px;
+            width: 50px;
+            height: 50px;
+            border: none;
+            border-radius: 50%;
+            background-color: #000; /* Black color */
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+        }
+
+        .button:active {
+            transform: scale(0.9);
+        }
+
+        .save-icon {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .save-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .save {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 40px;
+            background-color: #1DB954;
+            color: white;
+            font-size: 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Style for saved songs */
+        .saved-song {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            gap: 5px;
+        }
+
+        .saved-song-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .saved-song-item img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .saved-song-item span {
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Slide-in animation */
+        .slide-in {
+            transform: translateX(0); /* Slide into view */
+        }
+
+        /* Slide-out animation for remove button */
+        .slide-out {
+            transform: translateX(-100%); /* Slide out of view */
+        }
+
+        /* Responsive design for mobile devices */
+        @media (max-width: 480px) {
+            .container {
+                width: 100vw;
+                height: 50vh;
+            }
+
+            .song-title {
+                font-size: 20px;
+            }
+
+            .song-artist {
+                font-size: 14px;
+            }
+
+            .button {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .save {
+                width: 80px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img id="cover" class="cover slide-out" src="" alt="Spotify Cover">
+        <div class="song-info">
+            <div id="songTitle" class="song-title">Song Title</div>
+            <div id="songArtist" class="song-artist">Artist Name</div>
+        </div>
+        <button class="button add" id="addBtn">+</button>
+        <button class="save-icon" id="saveBtn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Font_Awesome_5_solid_heart.svg" alt="Save Icon">
+        </button>
+    </div>
+
+    <div class="saved-song" id="savedSong">
+        <!-- Saved songs will stack here -->
+    </div>
+
+    <script>
+        const cover = document.getElementById('cover');
+        const songTitle = document.getElementById('songTitle');
+        const songArtist = document.getElementById('songArtist');
+        const addBtn = document.getElementById('addBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const savedSong = document.getElementById('savedSong');
+
+        // Spotify playlist data
+        const playlist = [];
+        let currentIndex = 0;
+        const savedSongs = new Set(); // To avoid duplicates
+
+        async function fetchPlaylist() {
+            const playlistId = "42zLPB01M09s5xyG3FVwzl";
+            const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+                headers: {
+                    Authorization: `Bearer BQAKOA1zvXKmW9uQpENOTf5Cw4_7uaeJ-wd2NaP-te9f8Wp_PMddl6YbMmhr3iX8k3np287HMUNhHgimlyPFD5_7qDy1OofFAYe9qQaNCpBH8T2GYYCYSAGiAN7aQ_allWDP2l5yScQ`,
+                },
+            });
+
+            const data = await response.json();
+            data.items.forEach((item) => {
+                playlist.push({
+                    title: item.track.name,
+                    artist: item.track.artists[0].name,
+                    cover: item.track.album.images[0].url,
+                });
+            });
+
+            loadRandomSong();
+        }
+
+        // Randomize songs on add button click
+        function loadRandomSong() {
+            // Randomly shuffle the playlist for each click
+            const randomIndex = Math.floor(Math.random() * playlist.length);
+            const randomSong = playlist[randomIndex];
+
+            // 1 in 10 songs should have a slight orange glow
+            if (Math.random() < 0.1) {
+                cover.classList.add('rare');
+            } else {
+                cover.classList.remove('rare');
+            }
+
+            cover.src = randomSong.cover;
+            songTitle.textContent = randomSong.title;
+            songArtist.textContent = randomSong.artist;
+        }
+
+        // Add song (slide in)
+        addBtn.addEventListener('click', () => {
+            // Slide out the current cover to the left
+            cover.classList.add('slide-out');
+            setTimeout(() => {
+                // Randomly shuffle the playlist for each click
+                currentIndex = Math.floor(Math.random() * playlist.length);
+                const song = playlist[currentIndex];
+
+                // Prepare cover for sliding in and show song info at the same time
+                cover.classList.remove('slide-out');
+                cover.classList.add('slide-in');
+                songTitle.style.opacity = 1;  // Make song title visible
+                songArtist.style.opacity = 1; // Make artist name visible
+
+                // Update cover and title with a delay to make the animation smooth
+                setTimeout(() => {
+                    cover.src = song.cover;
+                    songTitle.textContent = song.title;
+                    songArtist.textContent = song.artist;
+                }, 500);
+            }, 500);
+        });
+
+        // Save song feature
+        saveBtn.addEventListener('click', () => {
+            const currentSong = `${songTitle.textContent} - ${songArtist.textContent}`;
+
+            // Check if the song has already been saved
+            if (!savedSongs.has(currentSong)) {
+                savedSongs.add(currentSong);
+
+                // Create a new saved song item
+                const savedItem = document.createElement('div');
+                savedItem.classList.add('saved-song-item');
+
+                const savedImage = document.createElement('img');
+                savedImage.src = cover.src;
+                savedItem.appendChild(savedImage);
+
+                const savedInfo = document.createElement('span');
+                savedInfo.textContent = currentSong;
+                savedItem.appendChild(savedInfo);
+
+                savedSong.appendChild(savedItem);
+            }
+        });
+
+        // Fetch Spotify playlist on load
+        fetchPlaylist();
+    </script>
+</body>
+</html>
