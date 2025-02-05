@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Cover Manager</title>
-    <!-- Include Font Awesome for the heart icon -->
+    <!-- Include Font Awesome for the heart icon and play icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
         body {
@@ -39,7 +39,7 @@
             position: absolute;
             left: 0;
             transform: translateX(100%); /* Initially off-screen */
-            transition: transform 0.3s ease; /* Adjust transition duration for more responsiveness */
+            transition: transform 0.6s ease; /* Slower transition */
         }
 
         .cover.rare {
@@ -58,17 +58,19 @@
         .song-title {
             font-size: 24px;
             font-weight: bold;
-            color: #000;
+            color: black; /* Black color for song title */
         }
 
         .song-artist {
             font-size: 16px;
+            font-weight: bold; /* Bolder artist name */
             color: #555;
         }
 
         .button {
             position: absolute;
             bottom: 20px;
+            left: 10px;
             width: 50px;
             height: 50px;
             border: none;
@@ -85,19 +87,23 @@
             z-index: 2;
         }
 
-        .button:hover {
-            transform: scale(1.1);
-        }
-
-        .button:active {
-            transform: scale(0.9);
+        .play-icon {
+            position: absolute;
+            bottom: 20px;
+            left: 70px;
+            width: 50px;
+            height: 50px;
+            background-color: #000;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            color: white;
         }
 
         .save-icon {
             position: absolute;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            right: 10px;
             width: 40px;
             height: 40px;
             background-color: #000;
@@ -105,6 +111,13 @@
             cursor: pointer;
             font-size: 24px;
             color: white;
+        }
+
+        .save-icon i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         /* Style for saved songs */
@@ -184,14 +197,19 @@
 <body>
     <div class="container">
         <img id="cover" class="cover slide-out" src="" alt="Spotify Cover">
-        <div id="noSongText" class="song-info">Press the plus button</div>
+        <div id="noSongText" class="song-info">Press the heart button</div>
         <div class="song-info">
             <div id="songTitle" class="song-title">Song Title</div>
             <div id="songArtist" class="song-artist">Artist Name</div>
         </div>
-        <button class="button add" id="addBtn">+</button>
+        <button class="button" id="addBtn">
+            <i class="fas fa-plus"></i> <!-- Plus icon for adding songs -->
+        </button>
+        <button class="play-icon" id="playBtn">
+            <i class="fas fa-play"></i> <!-- Play icon -->
+        </button>
         <button class="save-icon" id="saveBtn">
-            <i class="fas fa-heart"></i> <!-- Font Awesome heart icon -->
+            <i class="fas fa-heart"></i> <!-- Save heart icon -->
         </button>
     </div>
 
@@ -204,6 +222,7 @@
         const songTitle = document.getElementById('songTitle');
         const songArtist = document.getElementById('songArtist');
         const addBtn = document.getElementById('addBtn');
+        const playBtn = document.getElementById('playBtn');
         const saveBtn = document.getElementById('saveBtn');
         const savedSong = document.getElementById('savedSong');
         const noSongText = document.getElementById('noSongText');
@@ -213,6 +232,7 @@
         let currentIndex = 0;
         const savedSongs = new Set(); // To avoid duplicates
         let isGlowActive = false; // Track if glow is active
+        let clickCounter = 0; // Track number of times the button is clicked
 
         async function fetchPlaylist() {
             const playlistId = "42zLPB01M09s5xyG3FVwzl";
@@ -236,12 +256,11 @@
 
         // Randomize songs on add button click
         function loadRandomSong() {
-            // Randomly shuffle the playlist for each click
             const randomIndex = Math.floor(Math.random() * playlist.length);
             const randomSong = playlist[randomIndex];
 
-            // 1 in 25 songs should have a slight orange glow
-            if (Math.random() < 0.04 && !isGlowActive) {  // 4% chance for glow
+            // 1 in 30 songs should have a slight orange glow (guaranteed after 30 clicks)
+            if (clickCounter >= 30 && !isGlowActive) {
                 cover.classList.add('rare');
                 isGlowActive = true;
             } else {
@@ -252,43 +271,44 @@
             songTitle.textContent = randomSong.title;
             songArtist.textContent = randomSong.artist;
 
-            // Hide "Press the plus button" text
+            // Hide "Press the heart button" text
             noSongText.style.display = 'none';
         }
 
         // Add song (slide in)
         addBtn.addEventListener('click', () => {
-            // Slide out the current cover to the left
+            clickCounter++;
             cover.classList.add('slide-out');
             setTimeout(() => {
-                // Randomly shuffle the playlist for each click
                 currentIndex = Math.floor(Math.random() * playlist.length);
                 const song = playlist[currentIndex];
 
-                // Prepare cover for sliding in and show song info at the same time
                 cover.classList.remove('slide-out');
                 cover.classList.add('slide-in');
-                songTitle.style.opacity = 1;  // Make song title visible
-                songArtist.style.opacity = 1; // Make artist name visible
+                songTitle.style.opacity = 1;  
+                songArtist.style.opacity = 1; 
 
-                // Update cover and title with a delay to make the animation smooth
                 setTimeout(() => {
                     cover.src = song.cover;
                     songTitle.textContent = song.title;
                     songArtist.textContent = song.artist;
                 }, 300);
-            }, 300);
+            }, 600); 
+        });
+
+        // Play song feature
+        playBtn.addEventListener('click', () => {
+            console.log('Playing song:', songTitle.textContent, 'by', songArtist.textContent);
+            // You can replace the above log with actual play functionality later (e.g., using the Web Audio API or embedding an audio player)
         });
 
         // Save song feature
         saveBtn.addEventListener('click', () => {
             const currentSong = `${songTitle.textContent} - ${songArtist.textContent}`;
 
-            // Check if the song has already been saved
             if (!savedSongs.has(currentSong)) {
                 savedSongs.add(currentSong);
 
-                // Create a new saved song item
                 const savedItem = document.createElement('div');
                 savedItem.classList.add('saved-song-item');
 
@@ -296,15 +316,15 @@
                 savedImage.src = cover.src;
                 savedItem.appendChild(savedImage);
 
-                const savedInfo = document.createElement('span');
-                savedInfo.textContent = currentSong;
-                savedItem.appendChild(savedInfo);
+                const savedText = document.createElement('span');
+                savedText.textContent = currentSong;
+                savedItem.appendChild(savedText);
 
                 savedSong.appendChild(savedItem);
             }
         });
 
-        // Fetch Spotify playlist on load
+        // Initialize the playlist when the page loads
         fetchPlaylist();
     </script>
 </body>
