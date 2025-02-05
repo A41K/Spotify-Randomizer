@@ -39,7 +39,7 @@
             position: absolute;
             left: 0;
             transform: translateX(100%); /* Initially off-screen */
-            transition: transform 0.5s ease;
+            transition: transform 0.3s ease; /* Adjust transition duration for more responsiveness */
         }
 
         .cover.rare {
@@ -51,7 +51,7 @@
             bottom: 90px; /* Positioned above the buttons */
             width: 100%;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.3s ease; /* Smoother opacity transition */
             text-align: center;
         }
 
@@ -98,27 +98,13 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 30px;
-            color: #fff;
-        }
-
-        .save {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
+            width: 40px;
             height: 40px;
-            background-color: #1DB954;
-            color: white;
-            font-size: 16px;
-            border-radius: 20px;
+            background-color: #000;
+            border-radius: 50%;
             cursor: pointer;
+            font-size: 24px;
+            color: white;
         }
 
         /* Style for saved songs */
@@ -226,6 +212,7 @@
         const playlist = [];
         let currentIndex = 0;
         const savedSongs = new Set(); // To avoid duplicates
+        let isGlowActive = false; // Track if glow is active
 
         async function fetchPlaylist() {
             const playlistId = "42zLPB01M09s5xyG3FVwzl";
@@ -253,9 +240,10 @@
             const randomIndex = Math.floor(Math.random() * playlist.length);
             const randomSong = playlist[randomIndex];
 
-            // 1 in 10 songs should have a slight orange glow
-            if (Math.random() < 0.1) {
+            // 1 in 25 songs should have a slight orange glow
+            if (Math.random() < 0.04 && !isGlowActive) {  // 4% chance for glow
                 cover.classList.add('rare');
+                isGlowActive = true;
             } else {
                 cover.classList.remove('rare');
             }
@@ -288,8 +276,8 @@
                     cover.src = song.cover;
                     songTitle.textContent = song.title;
                     songArtist.textContent = song.artist;
-                }, 500);
-            }, 500);
+                }, 300);
+            }, 300);
         });
 
         // Save song feature
