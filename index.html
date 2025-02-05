@@ -12,12 +12,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 95vh;
+            min-height: 100vh;
             margin: 0;
-            background-color: #F5E9E8;;
+            background-color: #fff;
             padding: 10px;
-            flex-direction: column;
-            font-size:1rem;
         }
 
         .container {
@@ -164,64 +162,46 @@
             transform: translateX(-100%); /* Slide out of view */
         }
 
-        /* Footer Style */
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            padding: 10px;
-            background-color: #000;
-            color: white;
-            font-size: 14px;
-        }
-
         /* Responsive design for mobile devices */
         @media (max-width: 700px) {
-        .container {
-            width: 100vw;
-            height: 6 0vh;
-        }
+            .container {
+                width: 100vw;
+                height: 50vh;
+            }
 
-        .song-title {
-            font-size: 20px;
-        }
+            .song-title {
+                font-size: 20px;
+            }
 
-        .song-artist {
-            font-size: 14px;
-        }
+            .song-artist {
+                font-size: 14px;
+            }
 
-        .button {
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-        }
+            .button {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
 
-        .heart-icon {
-            width: 40px;
-            height: 40px;
-        }
+            .heart-icon {
+                width: 45px;
+                height: 45px;
+            }
 
-        /* Adjusting the song-info position for better visibility on mobile */
-        .song-info {
-            bottom: 70px; /* Move text lower to be visible */
-        }
-
-        .saved-song-item span {
-            font-size: 14px;
-        }
-
-        
-        .buttons {
-            bottom: 20px; /* Move the buttons 20px down */
-        }
-    }
+            /* Adjusting the song-info position for better visibility on mobile */
+            .song-info {
+                bottom: 50px; /* Move text lower to be visible */
+            }
 
             .saved-song-item span {
                 font-size: 14px;
             }
-        
+
+            /* Move buttons down by 150px */
+            .buttons {
+                bottom: 170px; /* Move the buttons 150px down */
+            }
+        }
     </style>
 </head>
 <body>
@@ -234,7 +214,7 @@
         </div>
         <div class="buttons">
             <button class="button" id="addBtn">
-                <i class="fas fa-dice-d6"></i> <!-- Plus icon for adding songs -->
+                <i class="fas fa-dice-d6"></i> <!-- Initial dice icon -->
             </button>
             <div class="heart-icon" id="saveBtn">
                 <i class="fas fa-heart"></i> <!-- Heart icon for saving songs -->
@@ -246,10 +226,6 @@
         <!-- Saved songs will stack here -->
     </div>
 
-    <footer>
-        This was made by Andrew a.k.a A41K
-    </footer>
-
     <script>
         const cover = document.getElementById('cover');
         const songTitle = document.getElementById('songTitle');
@@ -259,6 +235,19 @@
         const savedSong = document.getElementById('savedSong');
         const noSongText = document.getElementById('noSongText');
         const songInfo = document.getElementById('songInfo');
+        const diceIcon = addBtn.querySelector('i');  // Get the dice icon inside the button
+
+        // List of dice icons to cycle through
+        const diceIcons = [
+            'fas fa-dice-five',
+            'fas fa-dice-four',
+            'fas fa-dice-one',
+            'fas fa-dice-six',
+            'fas fa-dice-three',
+            'fas fa-dice-two',
+        ];
+
+        let currentDiceIndex = 0;  // Track the current dice icon index
 
         // Spotify playlist data
         const playlist = [];
@@ -289,33 +278,32 @@
 
         // Randomize songs on add button click
         function loadRandomSong() {
-        const randomIndex = Math.floor(Math.random() * playlist.length);
-        const randomSong = playlist[randomIndex];
+            const randomIndex = Math.floor(Math.random() * playlist.length);
+            const randomSong = playlist[randomIndex];
 
-        // Trigger the rare glow effect once in every 4 clicks
-        if (clickCounter % 4 === 0 && !isGlowActive) {
-            cover.classList.add('rare'); // Apply glow effect
-            isGlowActive = true;
-        } else {
-            cover.classList.remove('rare'); // Remove glow effect
+            // Trigger the rare glow effect once in every 4 clicks
+            if (clickCounter % 4 === 0 && !isGlowActive) {
+                cover.classList.add('rare'); // Apply glow effect
+                isGlowActive = true;
+            } else {
+                cover.classList.remove('rare'); // Remove glow effect
+            }
+
+            cover.src = randomSong.cover;
+            songTitle.textContent = randomSong.title;
+            songArtist.textContent = randomSong.artist;
+
+            // Hide "Press the heart button" text
+            noSongText.style.display = 'none';
+            songInfo.style.opacity = 1; // Show song info smoothly
         }
-        
-
-
-        cover.src = randomSong.cover;
-        songTitle.textContent = randomSong.title;
-        songArtist.textContent = randomSong.artist;
-
-
-
-        // Hide "Press the heart button" text
-        noSongText.style.display = 'none';
-        songInfo.style.opacity = 1; // Show song info smoothly
-    }
-    
 
         // Add song (slide in)
         addBtn.addEventListener('click', () => {
+            // Cycle through dice icons on button press
+            currentDiceIndex = (currentDiceIndex + 1) % diceIcons.length;
+            diceIcon.className = diceIcons[currentDiceIndex];  // Update icon
+
             clickCounter++;
             cover.classList.add('slide-out');
             setTimeout(() => {
@@ -330,12 +318,8 @@
                 songTitle.textContent = song.title;
                 songArtist.textContent = song.artist;
                 songInfo.style.opacity = 1; // Show song info smoothly
-
-                // Remove glow effect after "+" is clicked
-                cover.classList.remove('rare');
             }, 600); // Wait for slide-out to finish
         });
-        
 
         // Save song to saved songs section
         saveBtn.addEventListener('click', () => {
