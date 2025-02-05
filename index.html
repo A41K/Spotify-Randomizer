@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Cover Manager</title>
+    <!-- Include Font Awesome for the heart icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -101,12 +103,8 @@
             background-color: transparent;
             border: none;
             cursor: pointer;
-        }
-
-        .save-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
+            font-size: 30px;
+            color: #fff;
         }
 
         .save {
@@ -200,13 +198,14 @@
 <body>
     <div class="container">
         <img id="cover" class="cover slide-out" src="" alt="Spotify Cover">
+        <div id="noSongText" class="song-info">Press the plus button</div>
         <div class="song-info">
             <div id="songTitle" class="song-title">Song Title</div>
             <div id="songArtist" class="song-artist">Artist Name</div>
         </div>
         <button class="button add" id="addBtn">+</button>
         <button class="save-icon" id="saveBtn">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Font_Awesome_5_solid_heart.svg" alt="Save Icon">
+            <i class="fas fa-heart"></i> <!-- Font Awesome heart icon -->
         </button>
     </div>
 
@@ -221,6 +220,7 @@
         const addBtn = document.getElementById('addBtn');
         const saveBtn = document.getElementById('saveBtn');
         const savedSong = document.getElementById('savedSong');
+        const noSongText = document.getElementById('noSongText');
 
         // Spotify playlist data
         const playlist = [];
@@ -263,6 +263,9 @@
             cover.src = randomSong.cover;
             songTitle.textContent = randomSong.title;
             songArtist.textContent = randomSong.artist;
+
+            // Hide "Press the plus button" text
+            noSongText.style.display = 'none';
         }
 
         // Add song (slide in)
