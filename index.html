@@ -92,8 +92,27 @@
             transition: transform 0.3s ease;
         }
 
-        .save-icon {
-            display: none; /* Remove the save icon if it's not used separately anymore */
+        /* Heart icon with red outer border */
+        .heart-icon {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            border: 3px solid red;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .heart-icon i {
+            color: red;
+            font-size: 24px;
+        }
+
+        .heart-icon:hover {
+            background-color: #FF6666; /* Lighter red on hover */
         }
 
         /* Style for saved songs */
@@ -163,9 +182,18 @@
                 font-size: 20px;
             }
 
-            .save {
-                width: 80px;
-                height: 35px;
+            .heart-icon {
+                width: 45px;
+                height: 45px;
+            }
+
+            /* Adjusting the song-info position for better visibility on mobile */
+            .song-info {
+                bottom: 50px; /* Move text lower to be visible */
+            }
+
+            .saved-song-item span {
+                font-size: 14px;
             }
         }
     </style>
@@ -182,9 +210,9 @@
             <button class="button" id="addBtn">
                 <i class="fas fa-plus"></i> <!-- Plus icon for adding songs -->
             </button>
-            <button class="button" id="saveBtn">
+            <div class="heart-icon" id="saveBtn">
                 <i class="fas fa-heart"></i> <!-- Heart icon for saving songs -->
-            </button>
+            </div>
         </div>
     </div>
 
@@ -231,25 +259,27 @@
 
         // Randomize songs on add button click
         function loadRandomSong() {
-            const randomIndex = Math.floor(Math.random() * playlist.length);
-            const randomSong = playlist[randomIndex];
+        const randomIndex = Math.floor(Math.random() * playlist.length);
+        const randomSong = playlist[randomIndex];
 
-            // 1 in 30 songs should have a slight orange glow (guaranteed after 30 clicks)
-            if (clickCounter >= 30 && !isGlowActive) {
-                cover.classList.add('rare');
-                isGlowActive = true;
-            } else {
-                cover.classList.remove('rare');
-            }
-
-            cover.src = randomSong.cover;
-            songTitle.textContent = randomSong.title;
-            songArtist.textContent = randomSong.artist;
-
-            // Hide "Press the heart button" text
-            noSongText.style.display = 'none';
-            songInfo.style.opacity = 1; // Show song info smoothly
+        // 1 in 10 songs should have a slight orange glow (guaranteed after 15 clicks)
+        if (clickCounter >= 15 && !isGlowActive) {
+            cover.classList.add('rare');
+            isGlowActive = true;
+        } else if (Math.random() < 0.1) { // 1 in 10 chance for glow
+            cover.classList.add('rare');
+        } else {
+            cover.classList.remove('rare');
         }
+
+        cover.src = randomSong.cover;
+        songTitle.textContent = randomSong.title;
+        songArtist.textContent = randomSong.artist;
+
+        // Hide "Press the heart button" text
+        noSongText.style.display = 'none';
+        songInfo.style.opacity = 1; // Show song info smoothly
+    }
 
         // Add song (slide in)
         addBtn.addEventListener('click', () => {
