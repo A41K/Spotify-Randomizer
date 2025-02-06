@@ -445,7 +445,7 @@
         rareSongCounterElement.textContent = `Rare Song Count: ${rareSongCount}`;
         saveRareSongCount();
 
-        // Update leaderboard for the current user (dummy user "Player1")
+        // Update leaderboard for the current user
         const currentPlayer = `${userId}`;
         leaderboardData.set(currentPlayer, (leaderboardData.get(currentPlayer) || 0) + 1);
         updateLeaderboard();
@@ -513,6 +513,24 @@ function loadRareSongCount() {
         }
 
         fetchPlaylist();
+
+         // Update the leaderboard with the userId and their rare song count
+         function updateLeaderboard() {
+            const leaderboardData = JSON.parse(localStorage.getItem('leaderboardData')) || {};
+            leaderboardData[userId] = rareSongCount;
+
+            // Save updated leaderboard to localStorage
+            localStorage.setItem('leaderboardData', JSON.stringify(leaderboardData));
+
+            leaderboardList.innerHTML = '';
+            Object.entries(leaderboardData)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([user, score]) => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${user}: ${score}`;
+                    leaderboardList.appendChild(listItem);
+                });
+        }
 
         addBtn.addEventListener('click', () => {
             if (playlist.length > 0) {
