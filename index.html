@@ -6,6 +6,7 @@
     <title>Spotify Randomizer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <link rel="icon" type="image/x-icon" href="dice.jpg">
+    <script src="app.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -329,6 +330,8 @@
         <i class="fas fa-trophy"></i>
     </button>
 
+     
+
     <div class="container">
         <img id="cover" class="cover slide-out" src="" alt="Spotify Cover">
         <div id="noSongText" class="song-info">Press the plus button</div>
@@ -409,26 +412,31 @@
         const guaranteedRareAfter = 50;
         let rareSongCount = 0;
 
+        
+
+
         const rareSongCounterElement = document.getElementById('rareSongCounter');
 
         function getRandomUserId() {
             return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
+        // Get or generate user ID and load saved rare song count
         let userId = localStorage.getItem('userId');
         if (!userId) {
-            userId = getRandomUserId();
+            userId = Math.floor(100000 + Math.random() * 900000).toString();
             localStorage.setItem('userId', userId);
         }
-
-        let savedRareSongCount = localStorage.getItem('rareSongCount');
+  // Load the rare song count for the current user from localStorage
+        let savedRareSongCount = localStorage.getItem('rareSongCount-' + userId);
         if (savedRareSongCount) {
             rareSongCount = parseInt(savedRareSongCount, 10);
             rareSongCounterElement.textContent = `Rare Song Count: ${rareSongCount}`;
         }
 
-        function saveRareSongCount() {
-            localStorage.setItem('rareSongCount', rareSongCount);
+            // Save the rare song count for the current user
+            function saveRareSongCount() {
+            localStorage.setItem('rareSongCount-' + userId, rareSongCount);
         }
 
         function loadRandomSong() {
@@ -494,7 +502,7 @@ function loadRareSongCount() {
             const playlistId = "42zLPB01M09s5xyG3FVwzl";
             fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
                 headers: {
-                    Authorization: `Bearer BQCXw6g58lkJYf1uZ2QNyHwiw1oTi4sNQaevgwyDdnfUcxFyhnBADqBt9WywDkmngYEX_uyLJRMRIr6oQX1FEMBVUaudkEH6XUrEt5JfTFsEtG1FWUJBDDaU-2-e5SooJQfOB4RPBTg`, // Replace with actual token
+                    Authorization: `Bearer BQAaaZss8r2ab0wuYqqI6VCOkAqiWHR-IyuhkIeP8ah29e4fbR17aTH0M0__v9uusR--m_6fs3HfO9T9fzcoSiDFxAqknhdBIBF8qa4cbTMq0TLNyrwidzcLh3fBG9wuQZxWsGmkEUg`, // Replace with actual token
                 },
             })
             .then(response => response.json())
@@ -562,7 +570,6 @@ function loadRareSongCount() {
                 savedSong.appendChild(savedItem);
             }
         });
-    </script>
     </script>
 </body>
 </html>
