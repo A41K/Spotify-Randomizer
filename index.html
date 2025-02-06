@@ -198,6 +198,7 @@
             transform: translateX(-100%); /* Slide out of view */
         }
 
+        
 
         .rare-song-counter {
             font-size: 16px;
@@ -210,7 +211,7 @@
             opacity: 0.7;
         }
 
-            @media (max-width: 700px) {
+        @media (max-width: 700px) {
             .container {
                 width: 200vw;
                 height: 100vh;
@@ -256,7 +257,6 @@
                 bottom: 60px;  /* Adjusted to be above the buttons */
             }
         }
-
         .leaderboard {
             position: fixed;
             top: 10%;
@@ -313,6 +313,12 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
+/* Apply an orange glow effect around the cover for rare songs */
+.cover.rare {
+    box-shadow: 0 0 15px 5px rgba(255, 165, 0, 0.7); /* Orange glow */
+    border: 5px solid rgba(255, 165, 0, 0.7); /* Optional: orange border */
+}
+
     </style>
 </head>
 <body>
@@ -356,6 +362,7 @@
     </div>
 
     <script>
+       
         const menuButton = document.getElementById('menuButton');
         const savedSong = document.getElementById('savedSong');
 
@@ -397,66 +404,75 @@
         const playlist = [];
         let currentIndex = 0;
         const savedSongs = new Set();
-        let isGlowActive = false;
-        let clickCounter = 0;
         let rareSongCounter = 0;
-        const rareSongProbability = 15;
-        const guaranteedRareAfter = 20;
+        const rareSongProbability = 30;
+        const guaranteedRareAfter = 50;
         let rareSongCount = 0;
 
-        // Leaderboard tracking
-        const leaderboardData = new Map();
+        const rareSongCounterElement = document.getElementById('rareSongCounter');
 
-        async function fetchPlaylist() {
-            const playlistId = "42zLPB01M09s5xyG3FVwzl";
-            const response = await fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-                headers: {
-                    Authorization: `Bearer BQBygGHqftyEAZSCE7LJiKHb6ynK2c-1VEYWVL0iUCileciOgNJIXdNvfPjztJuGUzjZVv4p-gD6Rjax4n4ySB-P7bzjTLatCgunQRjk9eo-q558C-6G8rZifB6gX2AshvDXg6k639k`, // Replace with actual token
-                },
-            });
+        function getRandomUserId() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
 
-            const data = await response.json();
-            data.items.forEach((item) => {
-                playlist.push({
-                    title: item.track.name,
-                    artist: item.track.artists[0].name,
-                    cover: item.track.album.images[0].url,
-                });
-            });
+        let userId = localStorage.getItem('userId');
+        if (!userId) {
+            userId = getRandomUserId();
+            localStorage.setItem('userId', userId);
+        }
 
-            loadRandomSong();
+        let savedRareSongCount = localStorage.getItem('rareSongCount');
+        if (savedRareSongCount) {
+            rareSongCount = parseInt(savedRareSongCount, 10);
+            rareSongCounterElement.textContent = `Rare Song Count: ${rareSongCount}`;
+        }
+
+        function saveRareSongCount() {
+            localStorage.setItem('rareSongCount', rareSongCount);
         }
 
         function loadRandomSong() {
-            const randomIndex = Math.floor(Math.random() * playlist.length);
-            const randomSong = playlist[randomIndex];
+    if (playlist.length === 0) return;
 
-            // Check for rare song
-            if (rareSongCounter >= guaranteedRareAfter || Math.random() < 1 / rareSongProbability) {
-                cover.classList.add('rare');
-                isGlowActive = true;
-                rareSongCounter = 0;
+    const randomIndex = Math.floor(Math.random() * playlist.length);
+    const randomSong = playlist[randomIndex];
 
-                rareSongCount++;
-                document.getElementById('rareSongCounter').textContent = `Rare Song Count: ${rareSongCount}`;
+    // Check for rare song
+    if (rareSongCounter >= guaranteedRareAfter || Math.random() < 1 / rareSongProbability) {
+        cover.classList.add('rare');
+        rareSongCounter = 0;
+        rareSongCount++;
+        rareSongCounterElement.textContent = `Rare Song Count: ${rareSongCount}`;
+        saveRareSongCount();
 
-                // Update leaderboard for the current user (dummy user "Player1")
-                const currentPlayer = "Player1";
-                leaderboardData.set(currentPlayer, (leaderboardData.get(currentPlayer) || 0) + 1);
-                updateLeaderboard();
-            } else {
-                cover.classList.remove('rare');
-                isGlowActive = false;
-                rareSongCounter++;
-            }
+        // Update leaderboard for the current user (dummy user "Player1")
+        const currentPlayer = `${userId}`;
+        leaderboardData.set(currentPlayer, (leaderboardData.get(currentPlayer) || 0) + 1);
+        updateLeaderboard();
+    } else {
+        cover.classList.remove('rare');
+        rareSongCounter++;
+    }
 
-            cover.src = randomSong.cover;
-            songTitle.textContent = randomSong.title;
-            songArtist.textContent = randomSong.artist;
+    cover.src = randomSong.cover;
+    songTitle.textContent = randomSong.title;
+    songArtist.textContent = randomSong.artist;
+    noSongText.style.display = 'none';
+    songInfo.style.opacity = 1;
+}
 
-            noSongText.style.display = 'none';
-            songInfo.style.opacity = 1;
-        }
+        const userData = {};  // Store user data in memory
+
+function saveRareSongCount() {
+    userData[userId] = rareSongCount;  // Store the rare song count for the user
+}
+
+function loadRareSongCount() {
+    if (userData[userId]) {
+        rareSongCount = userData[userId];
+        rareSongCounterElement.textContent = `Rare Song Count: ${rareSongCount}`;
+    }
+}
 
         function updateLeaderboard() {
             leaderboardList.innerHTML = '';
@@ -469,50 +485,66 @@
                 });
         }
 
+        const footer = document.querySelector('.footer');
+        footer.innerHTML += `<br>Your User ID: ${userId}`;
+
+        const leaderboardData = new Map();
+
+        function fetchPlaylist() {
+            const playlistId = "42zLPB01M09s5xyG3FVwzl";
+            fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+                headers: {
+                    Authorization: `Bearer BQCXw6g58lkJYf1uZ2QNyHwiw1oTi4sNQaevgwyDdnfUcxFyhnBADqBt9WywDkmngYEX_uyLJRMRIr6oQX1FEMBVUaudkEH6XUrEt5JfTFsEtG1FWUJBDDaU-2-e5SooJQfOB4RPBTg`, // Replace with actual token
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                playlist.length = 0;  // Clear the existing playlist
+                data.items.forEach((item) => {
+                    playlist.push({
+                        title: item.track.name,
+                        artist: item.track.artists[0].name,
+                        cover: item.track.album.images[0].url,
+                    });
+                });
+                loadRandomSong();  // Call this after the playlist is loaded
+            })
+            .catch(err => console.error('Error fetching playlist:', err));
+        }
+
+        fetchPlaylist();
+
         addBtn.addEventListener('click', () => {
-            currentDiceIndex = (currentDiceIndex + 1) % diceIcons.length;
-            diceIcon.className = diceIcons[currentDiceIndex];
-
-            clickCounter++;
-            cover.classList.add('slide-out');
-            setTimeout(() => {
-                currentIndex = Math.floor(Math.random() * playlist.length);
-                const song = playlist[currentIndex];
-
-                cover.classList.remove('slide-out');
-                cover.classList.add('slide-in');
-                songTitle.style.opacity = 1;
-                songArtist.style.opacity = 1;
-                cover.src = song.cover;
-                songTitle.textContent = song.title;
-                songArtist.textContent = song.artist;
-                songInfo.style.opacity = 1;
-
-                loadRandomSong();
-            }, 600);
+            if (playlist.length > 0) {
+                currentDiceIndex = (currentDiceIndex + 1) % diceIcons.length;
+                diceIcon.className = diceIcons[currentDiceIndex];
+                cover.classList.add('slide-out');
+                setTimeout(() => {
+                    loadRandomSong();
+                    cover.classList.remove('slide-out');
+                    cover.classList.add('slide-in');
+                }, 600);
+            } else {
+                console.error("Playlist not loaded yet.");
+            }
         });
 
         saveBtn.addEventListener('click', () => {
             const songInfoText = `${songTitle.textContent} by ${songArtist.textContent}`;
-
             if (!savedSongs.has(songInfoText)) {
                 savedSongs.add(songInfoText);
                 const savedItem = document.createElement('div');
                 savedItem.classList.add('saved-song-item');
-
                 const savedCover = document.createElement('img');
                 savedCover.src = cover.src;
                 savedItem.appendChild(savedCover);
-
                 const savedText = document.createElement('span');
                 savedText.textContent = songInfoText;
                 savedItem.appendChild(savedText);
-
                 savedSong.appendChild(savedItem);
             }
         });
-
-        fetchPlaylist();
+    </script>
     </script>
 </body>
 </html>
