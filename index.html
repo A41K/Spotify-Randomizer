@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Randomizer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-    <!-- COPYRIGHT BY A41K-->
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,10 +15,6 @@
             margin: 0;
             background-color: #fff;
             padding: 10px;
-        }
-
-        .rare {
-    box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.5);
         }
 
         .container {
@@ -42,38 +37,31 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             position: absolute;
             left: 0;
-            transform: translateX(100%); /* Initially off-screen */
-            transition: transform 0.6s ease; /* Slower transition */
+            transform: translateX(100%);
+            transition: transform 0.6s ease;
         }
-
-      
 
         .song-info {
             position: absolute;
-            bottom: 80px; /* Positioned above the buttons */
+            bottom: 80px;
             width: 100%;
             opacity: 0;
-            transition: opacity 0.3s ease; /* Smoother opacity transition */
+            transition: opacity 0.3s ease;
             text-align: center;
         }
 
         .song-title {
             font-size: 24px;
             font-weight: bold;
-            color: black; /* Black color for song title */
+            color: black;
         }
 
         .song-artist {
             font-size: 16px;
-            font-weight: bold; /* Bolder artist name */
+            font-weight: bold;
             color: #555;
         }
 
-        /* Hamburger menu style */
-        
-        
-
-        /* Center the buttons below the cover */
         .buttons {
             position: absolute;
             bottom: 20px;
@@ -88,7 +76,7 @@
             height: 50px;
             border: none;
             border-radius: 50%;
-            background-color: #000; /* Black color */
+            background-color: #000;
             color: #fff;
             font-size: 24px;
             cursor: pointer;
@@ -99,7 +87,6 @@
             transition: transform 0.3s ease;
         }
 
-        /* Heart icon with red outer border */
         .heart-icon {
             display: flex;
             justify-content: center;
@@ -119,10 +106,9 @@
         }
 
         .heart-icon:hover {
-            background-color: #FF6666; /* Lighter red on hover */
+            background-color: #FF6666;
         }
 
-        /* Style for saved songs */
         .saved-song {
             position: absolute;
             bottom: 10px;
@@ -133,33 +119,29 @@
             flex-direction: column;
             overflow-y: auto;
             gap: 5px;
+            transition: max-height 0.3s ease; /* Smooth transition for showing/hiding */
         }
 
         .saved-song-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            gap: 5px;
+            font-size: 12px; /* Smaller saved song text */
         }
 
         .saved-song-item img {
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px; /* Smaller image */
             border-radius: 50%;
         }
 
         .saved-song-item span {
-            flex-grow: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-         /* Footer Style */
-               footer {
+        footer {
             position: fixed;
             bottom: 0;
             left: 0;
@@ -171,17 +153,22 @@
             font-size: 14px;
         }
 
-        /* Slide-in animation */
-        .slide-in {
-            transform: translateX(0); /* Slide into view */
+        /* Hamburger menu style */
+        .hamburger {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #000;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10;
+            cursor: pointer;
         }
 
-        /* Slide-out animation for remove button */
-        .slide-out {
-            transform: translateX(-100%); /* Slide out of view */
-        }
-
-        /* Responsive design for mobile devices */
         @media (max-width: 700px) {
             .container {
                 width: 150vw;
@@ -199,33 +186,34 @@
             .button {
                 width: 60px;
                 height: 60px;
-                font-size: 32.5px;
+                font-size: 50px;
             }
 
             .heart-icon {
                 width: 60px;
                 height: 60px;
-                font-size: 32.5px;
+                font-size: 50px;
             }
 
-            /* Adjusting the song-info position for better visibility on mobile */
             .song-info {
-                bottom: 80px; /* Move text lower to be visible */
+                bottom: 80px;
             }
 
-            .saved-song-item span {
-                font-size: 14px;
+            .saved-song {
+                max-height: 0; /* Hidden by default */
             }
 
-            /* Move buttons down by 150px */
-            .buttons {
-                bottom: 5px; /* Move the buttons 150px down */
+            .hamburger {
+                display: block; /* Show hamburger menu on smaller screens */
             }
+        }
     </style>
 </head>
 <body>
-</head>
-<body>
+    <button class="hamburger" id="hamburgerBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <div class="container">
         <img id="cover" class="cover slide-out" src="" alt="Spotify Cover">
         <div id="noSongText" class="song-info">Press the plus button</div>
@@ -235,10 +223,10 @@
         </div>
         <div class="buttons">
             <button class="button" id="addBtn">
-                <i class="fas fa-dice-d6"></i> <!-- Initial dice icon -->
+                <i class="fas fa-dice-d6"></i>
             </button>
             <div class="heart-icon" id="saveBtn">
-                <i class="fas fa-heart"></i> <!-- Heart icon for saving songs -->
+                <i class="fas fa-heart"></i>
             </div>
         </div>
     </div>
@@ -258,28 +246,17 @@
         const addBtn = document.getElementById('addBtn');
         const saveBtn = document.getElementById('saveBtn');
         const savedSong = document.getElementById('savedSong');
-        const noSongText = document.getElementById('noSongText');
-        const songInfo = document.getElementById('songInfo');
-        const diceIcon = addBtn.querySelector('i');
-    
-        // List of dice icons to cycle through
-        const diceIcons = [
-            'fas fa-dice-five',
-            'fas fa-dice-four',
-            'fas fa-dice-one',
-            'fas fa-dice-six',
-            'fas fa-dice-three',
-            'fas fa-dice-two',
-        ];
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
 
-        let currentDiceIndex = 0;  // Track the current dice icon index
+        // Toggle saved songs visibility
+        hamburgerBtn.addEventListener('click', () => {
+            const isHidden = savedSong.style.maxHeight === '0px' || savedSong.style.maxHeight === '';
+            savedSong.style.maxHeight = isHidden ? '150px' : '0px'; // Toggle visibility
+        });
 
-        // Spotify playlist data
         const playlist = [];
+        const savedSongs = new Set();
         let currentIndex = 0;
-        const savedSongs = new Set(); // To avoid duplicates
-        let isGlowActive = false; // Track if glow is active
-        let clickCounter = 0; // Track number of times the button is clicked
 
         async function fetchPlaylist() {
             const playlistId = "42zLPB01M09s5xyG3FVwzl";
@@ -301,73 +278,45 @@
             loadRandomSong();
         }
 
-        // Randomize songs on add button click
         function loadRandomSong() {
             const randomIndex = Math.floor(Math.random() * playlist.length);
             const randomSong = playlist[randomIndex];
 
-            // Trigger the rare glow effect once in every 4 clicks
-            if (clickCounter % 4 === 0 && !isGlowActive) {
-                cover.classList.add('rare'); // Apply glow effect
-                isGlowActive = true;
-            } else {
-                cover.classList.remove('rare'); // Remove glow effect
-            }
-
             cover.src = randomSong.cover;
             songTitle.textContent = randomSong.title;
             songArtist.textContent = randomSong.artist;
-
-            // Hide "Press the heart button" text
-            noSongText.style.display = 'none';
-            songInfo.style.opacity = 1; // Show song info smoothly
         }
 
-        // Add song (slide in)
         addBtn.addEventListener('click', () => {
-            // Cycle through dice icons on button press
-            currentDiceIndex = (currentDiceIndex + 1) % diceIcons.length;
-            diceIcon.className = diceIcons[currentDiceIndex];  // Update icon
+            currentIndex = Math.floor(Math.random() * playlist.length);
+            const song = playlist[currentIndex];
 
-            clickCounter++;
-            cover.classList.add('slide-out');
-            setTimeout(() => {
-                currentIndex = Math.floor(Math.random() * playlist.length);
-                const song = playlist[currentIndex];
-
-                cover.classList.remove('slide-out');
-                cover.classList.add('slide-in');
-                songTitle.style.opacity = 1; // Show title smoothly
-                songArtist.style.opacity = 1; // Show artist smoothly
-                cover.src = song.cover;
-                songTitle.textContent = song.title;
-                songArtist.textContent = song.artist;
-                songInfo.style.opacity = 1; // Show song info smoothly
-            }, 600); // Wait for slide-out to finish
+            cover.src = song.cover;
+            songTitle.textContent = song.title;
+            songArtist.textContent = song.artist;
         });
 
-        // Save song to saved songs section
         saveBtn.addEventListener('click', () => {
             const songInfoText = `${songTitle.textContent} by ${songArtist.textContent}`;
-
             if (!savedSongs.has(songInfoText)) {
                 savedSongs.add(songInfoText);
                 const savedItem = document.createElement('div');
                 savedItem.classList.add('saved-song-item');
 
                 const savedCover = document.createElement('img');
-                savedCover.src = cover.src;
+                savedCover.src = cover.src; // Add the cover image of the song
                 savedItem.appendChild(savedCover);
 
                 const savedText = document.createElement('span');
-                savedText.textContent = songInfoText;
+                savedText.textContent = songInfoText; // Add song title and artist
                 savedItem.appendChild(savedText);
 
+                // Append the saved song item to the saved songs list
                 savedSong.appendChild(savedItem);
             }
         });
 
-        // Initialize playlist on load
+        // Initialize playlist on page load
         fetchPlaylist();
     </script>
 </body>
