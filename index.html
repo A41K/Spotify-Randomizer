@@ -18,6 +18,10 @@
             padding: 10px;
         }
 
+        .rare {
+    box-shadow: 0 0 15px 5px rgba(255, 0, 0, 0.5);
+        }
+
         .container {
             position: relative;
             width: 90vw;
@@ -66,20 +70,7 @@
         }
 
         /* Hamburger menu style */
-        .hamburger {
-            display: none;
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background-color: #000;
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 10;
-            cursor: pointer;
-        }
+        
 
         /* Center the buttons below the cover */
         .buttons {
@@ -278,13 +269,7 @@
         const noSongText = document.getElementById('noSongText');
         const songInfo = document.getElementById('songInfo');
         const diceIcon = addBtn.querySelector('i');
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-
-        // Toggle saved songs visibility
-        hamburgerBtn.addEventListener('click', () => {
-    const isHidden = savedSong.style.display === 'none';
-    savedSong.style.display = isHidden ? 'block' : 'none';
-});
+    
         // List of dice icons to cycle through
         const diceIcons = [
             'fas fa-dice-five',
