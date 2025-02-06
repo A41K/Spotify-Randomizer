@@ -282,8 +282,9 @@
 
         // Toggle saved songs visibility
         hamburgerBtn.addEventListener('click', () => {
-            const isHidden = savedSong.style.maxHeight === '0px' || savedSong.style.maxHeight === '';
-
+    const isHidden = savedSong.style.display === 'none';
+    savedSong.style.display = isHidden ? 'block' : 'none';
+});
         // List of dice icons to cycle through
         const diceIcons = [
             'fas fa-dice-five',
