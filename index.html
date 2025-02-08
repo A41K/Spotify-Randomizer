@@ -6,7 +6,7 @@
     <title>Spotify Randomizer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <link rel="icon" type="image/x-icon" href="dice.jpg">
-    <script src="app.js"></script>
+    <script src="server.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -502,7 +502,7 @@ function loadRareSongCount() {
             const playlistId = "42zLPB01M09s5xyG3FVwzl";
             fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
                 headers: {
-                    Authorization: `Bearer BQDf6jnxElwMHuPWYDXA0xx2GPU_S5nfYpNhas1FW3rVd2YlIhxovdibMtQH9bULOsSm_NfG6KejKAChLpvpu29aDZ8e7ePXLGDuN-IiV1Vw-NH1Wmmd0tnKpOmTCUXAfiDOBcUNLFw`, // Replace with actual token
+                    Authorization: `Bearer BQAJYYiEoIhf4UFa8M5m2XnQiO1NmuUQMUGidBi8vo9AAORoTbcWsSZ4S-cwTIiHF3aJ3ygzB3hhFlc0Sn_U2WNbZoYzmioHLqLfx1jjENowE5HQK1ZP2nsyoacN8PPfkvXKIOniq8o`, // Replace with actual token
                 },
             })
             .then(response => response.json())
